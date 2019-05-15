@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
+		<title>Tomato</title>
 		<style>
 body {
 	background: #ff3311;
@@ -31,13 +32,29 @@ main {
 		box-shadow: 0 2px 2px rgba(0,0,0,0.1);
 	}
 }
+
+button {
+	padding: 8px 16px;
+	border: 0;
+	background: rgba(0,0,0,0.1);
+	color: #fff;
+	text-transform: uppercase;
+	border-radius: 2px;
+	min-width: 80px;
+}
+button:hover, button:focus {
+	background: rgba(0,0,0,0.2);
+}
+button:active {
+	background: rgba(0,0,0,0.3);
+}
 		</style>
 	</head>
 	<body>
 		<main>
-			<h3>work</h3>
+			<h3 id="label">work</h3>
 			<p id="time"></p>
-			<button id="next" type="button">Skip</button>
+			<button id="next" type="button">Start</button>
 		</main>
 
 		<script>
@@ -49,16 +66,23 @@ function formatTime(time /*number*/) /*string*/ {
 }
 
 const Interval = {
-	BREAK_L: "long break",
-	BREAK: "short break",
+	BREAK_L: "lbreak",
+	BREAK: "sbreak",
 	WORK: "work"
 };
 
 Interval.duration = function(interval) {
 	return interval == Interval.BREAK_L ? 15 :
 		interval == Interval.BREAK ? 5 :
-		interval == Interval.WORK ? 30 :
+		interval == Interval.WORK ? 25 :
 		0
+}
+
+Interval.toString = function(interval) {
+	return interval == Interval.BREAK_L ? "break" :
+			interval == Interval.BREAK ? "break" :
+			interval == Interval.WORK ? "work" :
+			""
 }
 
 function* IntervalGenerator() {
@@ -73,24 +97,44 @@ function* IntervalGenerator() {
 var gen = IntervalGenerator();
 var next_button = document.getElementById("next");
 var time_text = document.getElementById("time");
+var label_text = document.getElementById("label");
 var interval = -1;
 
+function afterInterval(type) {
+	return new Promise(function(resolve, reject) {
+		var audio = new Audio(type == Interval.WORK ? "afterwork.wav" : "afterbreak.wav");
+		audio.play();
+		audio.addEventListener("ended", (event) => {
+			resolve();		
+		})
+	})
+}
+
 function nextItem() {
+	next_button.blur();
+	next_button.innerHTML = "Skip";
 	clearInterval(interval);
-	
-	var duration = Interval.duration(gen.next().value) * 60;
+
+	var next = gen.next().value;
+	var duration = Interval.duration(next) * 60;
 	time_text.innerHTML = formatTime(duration);
 	var startTime = Date.now();
+
+	label_text.innerHTML = document.title = Interval.toString(next);
 	
 	interval = setInterval(function() {
 		var secs = (Date.now() - startTime) / 1000; // # of seconds passed
 		var remaining = duration - secs;
-		time_text.innerHTML = formatTime(remaining);
-	}, 1000);
+		time_text.innerHTML = formatTime(Math.max(remaining, 0));
+
+		if (remaining <= 0) {
+			clearInterval(interval);
+			afterInterval(next).then(nextItem);
+		}
+	}, 200);
 }
 
 next_button.addEventListener("click", nextItem);
-nextItem();
 		</script>
 	</body>
 </html>
