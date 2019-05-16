@@ -1,0 +1,8 @@
+{
+	"name": "Tomato",
+	"description": "Be a tomato and get work done",
+	"display": "standalone",
+	"start_url": "/tomato.html",
+	"theme_color": "#ff5511",
+	"background_color": "#ff5511"
+}
