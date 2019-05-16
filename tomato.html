@@ -154,7 +154,6 @@ function afterInterval(type) {
 
 function nextItem() {
 	next_button.blur();
-	next_button.innerHTML = "Skip";
 	clearInterval(interval);
 
 	var next = gen.next().value;
@@ -164,9 +163,11 @@ function nextItem() {
 
     var name_input = document.getElementById("name");
     if (next == Interval.WORK) {
+		next_button.innerHTML = "Done";
         label_text.innerHTML = document.title = name_input.value.toLowerCase().trim() || "work";
         name_input.style.display = "none";
     } else {
+    	next_button.innerHTML = "Skip";
         label_text.innerHTML = document.title = Interval.toString(next);
         name_input.style.display = "block";
         name_input.focus();
