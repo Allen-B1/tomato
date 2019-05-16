@@ -58,6 +58,10 @@ button:active {
 		</main>
 
 		<script>
+if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+	Notification.requestPermission();
+}
+
 function formatTime(time /*number*/) /*string*/ {
 	time = Math.floor(time);
 	if (time >= 60) 
@@ -102,6 +106,14 @@ var interval = -1;
 
 function afterInterval(type) {
 	return new Promise(function(resolve, reject) {
+		if (Notification.permission === "granted") {
+			var str = Interval.toString(type);
+			str = str[0].toUpperCase() + str.slice(1);
+			new Notification(str + " has ended!", {
+				body: type == Interval.WORK ? "Take a break" : "Get back to work"
+			});
+		}
+	
 		var audio = new Audio(type == Interval.WORK ? "afterwork.wav" : "afterbreak.wav");
 		audio.play();
 		audio.addEventListener("ended", (event) => {
