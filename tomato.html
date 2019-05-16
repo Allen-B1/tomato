@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Tomato</title>
+		<title>tomato</title>
 		<meta name="application-name" content="Tomato">
 		<meta name="description" content="Be a tomato and get work done">
 		<meta name="theme-color" content="#ff5511">
@@ -9,11 +9,13 @@
 
 		<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no">
 		<style>
+body, button, input {
+    font-family: 'Roboto', sans-serif;
+	font-size: 14px;
+}
 body {
 	background: #ff5511;
 	color: #fff;
-	font-family: 'Roboto', sans-serif;
-	font-size: 14px;
 	padding: 0; margin: 0;
 }
 h3 {
@@ -50,15 +52,40 @@ button {
 }
 button:hover, button:focus {
 	background: rgba(0,0,0,0.2);
+    outline: 0;
 }
 button:active {
 	background: rgba(0,0,0,0.3);
+}
+input {
+    border: 0;
+    background: transparent;
+    width: 100px;
+    margin: auto;
+    text-align: center;
+    display:block;
+    padding: 8px 16px;
+    border-bottom: 1px solid #fff;
+    color: #fff;
+    outline: 0;
+    text-transform: lowercase;
+}
+input:focus {
+    border-bottom: 2px solid #fff;
+}
+::placeholder {
+    color: rgba(255,255,255,0.6);
+}
+
+h3 {
+    margin-bottom: 8px;
 }
 		</style>
 	</head>
 	<body>
 		<main>
 			<h3 id="label">work</h3>
+            <input id="name" placeholder="next task">
 			<p id="time"></p>
 			<button id="next" type="button">Start</button>
 		</main>
@@ -70,7 +97,7 @@ if (Notification.permission !== "granted" && Notification.permission !== "denied
 
 function formatTime(time /*number*/) /*string*/ {
 	time = Math.floor(time);
-	if (time >= 60) 
+	if (time >= 60)
 		return Math.floor(time / 60) + "m" + (time % 60) + "s";
 	return time + "s";
 }
@@ -100,7 +127,7 @@ function* IntervalGenerator() {
 	for (;;) {
 		yield Interval.WORK;
 		iterations++;
-		yield iterations % 4 == 0 ? Interval.BREAK_L : Interval.BREAK; 
+		yield iterations % 4 == 0 ? Interval.BREAK_L : Interval.BREAK;
 	}
 }
 
@@ -119,11 +146,11 @@ function afterInterval(type) {
 				body: type == Interval.WORK ? "Take a break" : "Get back to work"
 			});
 		}
-	
+
 		var audio = new Audio(type == Interval.WORK ? "afterwork.wav" : "afterbreak.wav");
 		audio.play();
 		audio.addEventListener("ended", (event) => {
-			resolve();		
+			resolve();
 		})
 	})
 }
@@ -138,8 +165,16 @@ function nextItem() {
 	time_text.innerHTML = formatTime(duration);
 	var startTime = Date.now();
 
-	label_text.innerHTML = document.title = Interval.toString(next);
-	
+    var name_input = document.getElementById("name");
+    if (next == Interval.WORK) {
+        label_text.innerHTML = document.title = name_input.value.toLowerCase().trim() || "work";
+        name_input.style.display = "none";
+    } else {
+        label_text.innerHTML = document.title = Interval.toString(next);
+        name_input.style.display = "block";
+        name_input.focus();
+    }
+
 	interval = setInterval(function() {
 		var secs = (Date.now() - startTime) / 1000; // # of seconds passed
 		var remaining = duration - secs;
