@@ -3,8 +3,8 @@
 	"description": "Be a tomato and get work done",
 	"display": "standalone",
 	"start_url": "tomato.html",
-	"theme_color": "#FF4800",
-	"background_color": "#FF4800",
+	"theme_color": "#bf616a",
+	"background_color": "#bf616a",
 
     "icons": [{
         "src": "tomato-48.png",
